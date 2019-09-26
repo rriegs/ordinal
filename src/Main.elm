@@ -1,5 +1,6 @@
 import Browser
-import Html exposing (Html, div, ul, li, button, text)
+import Html exposing (Html, node, div, ul, li, button, text, br)
+import Html.Attributes exposing (rel, href, class)
 import Html.Events exposing (onClick)
 import Time
 
@@ -25,16 +26,24 @@ init _ =
 view : Model -> Html Msg
 view model =
   div []
-    [ button [ onClick ClickCash ]
-        [ text ("💰 " ++ (String.fromInt model.cash)) ]
-    , ul [] (List.indexedMap viewWorker model.workers)
+    [ node "link"
+        [ rel "stylesheet"
+        , href "https://www.w3schools.com/w3css/4/w3.css"
+        ] []
+    , div [ class "w3-container" ]
+        [ button [ class "w3-button", onClick ClickCash ]
+            [ text ("💰 " ++ (String.fromInt model.cash)) ]
+        ]
+    , ul [ class "w3-ul" ]
+        (List.indexedMap viewWorker model.workers)
     ]
 
 viewWorker : Int -> Int -> Html Msg
 viewWorker index count =
   li []
-    [ button [ onClick (ClickWorker index) ]
+    [ button [ class "w3-button", onClick (ClickWorker index) ]
         [ text ("⛏ " ++ (String.fromInt count))
+        , br [] []
         , text ("💰 " ++ (String.fromInt (workerCost index)))
         ]
     ]
