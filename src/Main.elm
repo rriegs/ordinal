@@ -38,7 +38,7 @@ view model =
             [ text ("💰 " ++ (String.fromInt model.cash)) ]
         ]
     , div [ class "w3-row" ]
-        [ ul [ class "w3-ul w3-third" ]
+        [ ul [ class "w3-ul w3-col m4 l4" ]
             (List.indexedMap viewWorker model.workers)
         ]
     ]
@@ -50,9 +50,9 @@ viewWorker index count =
         [ class "w3-button w3-block w3-xlarge w3-row"
         , onClick (ClickWorker index)
         ]
-        [ div [ class "w3-half" ]
+        [ div [ class "w3-col s6 m12 l6" ]
             [ text ("⛏ " ++ (String.fromInt count)) ]
-        , div [ class "w3-half" ]
+        , div [ class "w3-col s6 m12 l6" ]
             [ text ("💰 " ++ (String.fromInt (workerCost index))) ]
         ]
     ]
