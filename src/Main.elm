@@ -1,6 +1,6 @@
 import Browser
 import Html exposing (Html, node, div, ul, li, button, text, br)
-import Html.Attributes exposing (rel, href, class)
+import Html.Attributes exposing (rel, href, class, style)
 import Html.Events exposing (onClick)
 import Time
 
@@ -30,7 +30,12 @@ view model =
         [ rel "stylesheet"
         , href "https://www.w3schools.com/w3css/4/w3.css"
         ] []
-    , div [ class "w3-container" ]
+    , div
+        [ class "w3-container w3-white"
+        , style "position" "-webkit-sticky"
+        , style "position" "sticky"
+        , style "top" "0"
+        ]
         [ button
             [ class "w3-button w3-block w3-xxlarge"
             , onClick ClickCash
