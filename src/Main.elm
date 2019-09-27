@@ -6,8 +6,8 @@ import Time
 
 
 type alias Model =
-  { cash : Int
-  , workers : List Int
+  { cash : Float
+  , workers : List Float
   }
 
 type Msg
@@ -35,7 +35,7 @@ view model =
             [ class "w3-button w3-block w3-xxlarge"
             , onClick ClickCash
             ]
-            [ text ("💰 " ++ (String.fromInt model.cash)) ]
+            [ text ("💰 " ++ (scientific model.cash)) ]
         ]
     , div [ class "w3-row" ]
         [ ul [ class "w3-ul w3-col m4 l4" ]
@@ -43,7 +43,7 @@ view model =
         ]
     ]
 
-viewWorker : Int -> Int -> Html Msg
+viewWorker : Int -> Float -> Html Msg
 viewWorker index count =
   li []
     [ button
@@ -51,15 +51,31 @@ viewWorker index count =
         , onClick (ClickWorker index)
         ]
         [ div [ class "w3-col s6 m12 l6" ]
-            [ text ("⛏ " ++ (String.fromInt count)) ]
+            [ text ("⛏ " ++ (scientific count)) ]
         , div [ class "w3-col s6 m12 l6" ]
-            [ text ("💰 " ++ (String.fromInt (workerCost index))) ]
+            [ text ("💰 " ++ (scientific (workerCost index))) ]
         ]
     ]
 
-workerCost : Int -> Int
+workerCost : Int -> Float
 workerCost index =
-  10 * 100 ^ index
+  10 * 100 ^ (toFloat index)
+
+scientific : Float -> String
+scientific value =
+  let
+    exponent = if value == 0 then 0 else (floor (logBase 1000 (abs value))) * 3
+    significand = truncate (value / 10 ^ (toFloat (exponent - 1)))
+    mantissa = significand // 10
+    decimal = significand - mantissa * 10
+  in
+    if exponent == 0 && decimal == 0 then
+      String.fromInt mantissa
+
+    else
+      (String.fromInt mantissa) ++
+        "." ++ (String.fromInt decimal) ++
+        "e" ++ (String.fromInt exponent)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -89,7 +105,7 @@ update msg model =
 
         else (model, Cmd.none)
 
-updateWorkers : List Int -> List Int
+updateWorkers : List Float -> List Float
 updateWorkers workers =
   case workers of
     (head :: next :: tail) ->
@@ -97,7 +113,7 @@ updateWorkers workers =
 
     _ -> workers
 
-incAtIndex : Int -> List Int -> List Int
+incAtIndex : Int -> List Float -> List Float
 incAtIndex index workers =
   case (index, workers) of
     (0, head :: tail) ->
