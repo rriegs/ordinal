@@ -37,20 +37,23 @@ view model =
             ]
             [ text ("💰 " ++ (String.fromInt model.cash)) ]
         ]
-    , ul [ class "w3-ul" ]
-        (List.indexedMap viewWorker model.workers)
+    , div [ class "w3-row" ]
+        [ ul [ class "w3-ul w3-third" ]
+            (List.indexedMap viewWorker model.workers)
+        ]
     ]
 
 viewWorker : Int -> Int -> Html Msg
 viewWorker index count =
   li []
     [ button
-        [ class "w3-button w3-block w3-xlarge"
+        [ class "w3-button w3-block w3-xlarge w3-row"
         , onClick (ClickWorker index)
         ]
-        [ text ("⛏ " ++ (String.fromInt count))
-        , br [] []
-        , text ("💰 " ++ (String.fromInt (workerCost index)))
+        [ div [ class "w3-half" ]
+            [ text ("⛏ " ++ (String.fromInt count)) ]
+        , div [ class "w3-half" ]
+            [ text ("💰 " ++ (String.fromInt (workerCost index))) ]
         ]
     ]
 
