@@ -105,19 +105,22 @@ scientific value =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
+    ( updateModel msg model, Cmd.none )
+
+
+updateModel : Msg -> Model -> Model
+updateModel msg model =
     case msg of
         Tick _ ->
             case updateWorkers model.workers of
                 head :: tail ->
-                    ( Model (model.cash + head) (head :: tail)
-                    , Cmd.none
-                    )
+                    Model (model.cash + head) (head :: tail)
 
                 [] ->
-                    ( Model model.cash [], Cmd.none )
+                    Model model.cash []
 
         ClickCash ->
-            ( { model | cash = model.cash + 1 }, Cmd.none )
+            { model | cash = model.cash + 1 }
 
         ClickWorker index ->
             let
@@ -125,12 +128,10 @@ update msg model =
                     workerCost index
             in
             if model.cash >= cost then
-                ( Model (model.cash - cost) (incAtIndex index model.workers)
-                , Cmd.none
-                )
+                Model (model.cash - cost) (incAtIndex index model.workers)
 
             else
-                ( model, Cmd.none )
+                model
 
 
 updateWorkers : List Float -> List Float
