@@ -146,15 +146,11 @@ updateWorkers workers =
 incAtIndex : Int -> List Float -> List Float
 incAtIndex index workers =
     case ( index, workers ) of
-        ( 0, head :: tail ) ->
-            head
-                + 1
-                :: (if tail == [] then
-                        [ 0 ]
+        ( 0, head :: [] ) ->
+            head + 1 :: [ 0 ]
 
-                    else
-                        tail
-                   )
+        ( 0, head :: tail ) ->
+            head + 1 :: tail
 
         ( _, head :: tail ) ->
             head :: incAtIndex (index - 1) tail
