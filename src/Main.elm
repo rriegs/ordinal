@@ -90,7 +90,7 @@ scientific value =
             significand // 10
 
         decimal =
-            significand - mantissa * 10
+            abs (significand - mantissa * 10)
     in
     if exponent == 0 && decimal == 0 then
         String.fromInt mantissa
