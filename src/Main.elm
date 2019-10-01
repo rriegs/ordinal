@@ -11,6 +11,7 @@ type alias Model =
     { cash : Float
     , workers : List Float
     , clickPower : Float
+    , workerRate : Float
     }
 
 
@@ -19,6 +20,7 @@ type Msg
     | ClickCash
     | ClickWorker Int
     | ClickClickPower
+    | ClickWorkerRate
 
 
 init : () -> ( Model, Cmd Msg )
@@ -26,6 +28,7 @@ init _ =
     ( { cash = 0
       , workers = [ 0 ]
       , clickPower = 1
+      , workerRate = 1
       }
     , Cmd.none
     )
@@ -88,6 +91,17 @@ viewUpgrades model =
                 [ text ("💰 " ++ scientific (clickPowerCost model.clickPower)) ]
             ]
         ]
+    , li []
+        [ button
+            [ class "w3-button w3-block w3-xlarge w3-row"
+            , onClick ClickWorkerRate
+            ]
+            [ div [ class "w3-col s6 m12 l6" ]
+                [ text ("Worker rate: " ++ scientific model.workerRate) ]
+            , div [ class "w3-col s6 m12 l6" ]
+                [ text ("💰 " ++ scientific (workerRateCost model.workerRate)) ]
+            ]
+        ]
     ]
 
 
@@ -99,6 +113,11 @@ workerCost index =
 clickPowerCost : Float -> Float
 clickPowerCost power =
     100 ^ power
+
+
+workerRateCost : Float -> Float
+workerRateCost rate =
+    1000 ^ rate
 
 
 scientific : Float -> String
@@ -143,8 +162,8 @@ updateModel msg model =
             case model.workers of
                 head :: tail ->
                     { model
-                        | cash = model.cash + head
-                        , workers = updateWorkers model.workers
+                        | cash = model.cash + head * model.workerRate
+                        , workers = updateWorkers model.workerRate model.workers
                     }
 
                 [] ->
@@ -181,12 +200,26 @@ updateModel msg model =
             else
                 model
 
+        ClickWorkerRate ->
+            let
+                cost =
+                    workerRateCost model.workerRate
+            in
+            if model.cash >= cost then
+                { model
+                    | cash = model.cash - cost
+                    , workerRate = model.workerRate + 1
+                }
 
-updateWorkers : List Float -> List Float
-updateWorkers workers =
+            else
+                model
+
+
+updateWorkers : Float -> List Float -> List Float
+updateWorkers rate workers =
     case workers of
         head :: next :: tail ->
-            head + next :: updateWorkers (next :: tail)
+            head + next * rate :: updateWorkers rate (next :: tail)
 
         _ ->
             workers
