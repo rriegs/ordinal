@@ -10,6 +10,7 @@ import Time
 type alias Model =
     { cash : Float
     , workers : List Float
+    , clickPower : Float
     }
 
 
@@ -17,11 +18,15 @@ type Msg
     = Tick Time.Posix
     | ClickCash
     | ClickWorker Int
+    | ClickClickPower
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( Model 0 [ 0 ]
+    ( { cash = 0
+      , workers = [ 0 ]
+      , clickPower = 1
+      }
     , Cmd.none
     )
 
@@ -49,6 +54,8 @@ view model =
         , div [ class "w3-row" ]
             [ ul [ class "w3-ul w3-col m4 l4" ]
                 (List.indexedMap viewWorker model.workers)
+            , ul [ class "w3-ul w3-col m4 l4" ]
+                (viewUpgrades model)
             ]
         ]
 
@@ -68,9 +75,30 @@ viewWorker index count =
         ]
 
 
+viewUpgrades : Model -> List (Html Msg)
+viewUpgrades model =
+    [ li []
+        [ button
+            [ class "w3-button w3-block w3-xlarge w3-row"
+            , onClick ClickClickPower
+            ]
+            [ div [ class "w3-col s6 m12 l6" ]
+                [ text ("Click power: " ++ scientific model.clickPower) ]
+            , div [ class "w3-col s6 m12 l6" ]
+                [ text ("💰 " ++ scientific (clickPowerCost model.clickPower)) ]
+            ]
+        ]
+    ]
+
+
 workerCost : Int -> Float
 workerCost index =
     10 * 100 ^ toFloat index
+
+
+clickPowerCost : Float -> Float
+clickPowerCost power =
+    100 ^ power
 
 
 scientific : Float -> String
@@ -123,7 +151,7 @@ updateModel msg model =
                     model
 
         ClickCash ->
-            { model | cash = model.cash + 1 }
+            { model | cash = model.cash + model.clickPower }
 
         ClickWorker index ->
             let
@@ -133,7 +161,21 @@ updateModel msg model =
             if model.cash >= cost then
                 { model
                     | cash = model.cash - cost
-                    , workers = incAtIndex index model.workers
+                    , workers = incAtIndex model.clickPower index model.workers
+                }
+
+            else
+                model
+
+        ClickClickPower ->
+            let
+                cost =
+                    clickPowerCost model.clickPower
+            in
+            if model.cash >= cost then
+                { model
+                    | cash = model.cash - cost
+                    , clickPower = model.clickPower + 1
                 }
 
             else
@@ -150,17 +192,17 @@ updateWorkers workers =
             workers
 
 
-incAtIndex : Int -> List Float -> List Float
-incAtIndex index workers =
+incAtIndex : Float -> Int -> List Float -> List Float
+incAtIndex power index workers =
     case ( index, workers ) of
         ( 0, head :: [] ) ->
-            head + 1 :: [ 0 ]
+            head + power :: [ 0 ]
 
         ( 0, head :: tail ) ->
-            head + 1 :: tail
+            head + power :: tail
 
         ( _, head :: tail ) ->
-            head :: incAtIndex (index - 1) tail
+            head :: incAtIndex power (index - 1) tail
 
         _ ->
             workers
