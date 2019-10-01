@@ -55,9 +55,17 @@ view model =
                 [ text ("💰 " ++ scientific model.cash) ]
             ]
         , div [ class "w3-row" ]
-            [ ul [ class "w3-ul w3-col m4 l4" ]
+            [ ul
+                [ class "w3-ul w3-col m4 l4"
+                , style "height" "calc(100vh - 86px)"
+                , style "overflow-y" "scroll"
+                ]
                 (List.indexedMap viewWorker model.workers)
-            , ul [ class "w3-ul w3-col m4 l4" ]
+            , ul
+                [ class "w3-ul w3-col m4 l4"
+                , style "height" "calc(100vh - 86px)"
+                , style "overflow-y" "scroll"
+                ]
                 (viewUpgrades model)
             ]
         ]
