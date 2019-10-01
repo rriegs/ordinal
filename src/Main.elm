@@ -112,12 +112,15 @@ updateModel : Msg -> Model -> Model
 updateModel msg model =
     case msg of
         Tick _ ->
-            case updateWorkers model.workers of
+            case model.workers of
                 head :: tail ->
-                    Model (model.cash + head) (head :: tail)
+                    { model
+                        | cash = model.cash + head
+                        , workers = updateWorkers model.workers
+                    }
 
                 [] ->
-                    Model model.cash []
+                    model
 
         ClickCash ->
             { model | cash = model.cash + 1 }
@@ -128,7 +131,10 @@ updateModel msg model =
                     workerCost index
             in
             if model.cash >= cost then
-                Model (model.cash - cost) (incAtIndex index model.workers)
+                { model
+                    | cash = model.cash - cost
+                    , workers = incAtIndex index model.workers
+                }
 
             else
                 model
