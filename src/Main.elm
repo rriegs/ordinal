@@ -84,7 +84,7 @@ viewWorker index count =
             [ div [ class "w3-col s6 m12 l6" ]
                 [ text ("⛏ " ++ scientific count) ]
             , div [ class "w3-col s6 m12 l6" ]
-                [ text ("💰 " ++ scientific (workerCost index)) ]
+                [ text ("💰 " ++ scientific (workerCost (toFloat index))) ]
             ]
         ]
 
@@ -127,24 +127,24 @@ viewUpgrades model =
     ]
 
 
-workerCost : Int -> Float
+workerCost : Float -> Float
 workerCost index =
-    10 * 100 ^ toFloat index
+    10 * 100 ^ index * index ^ index
 
 
 clickPowerCost : Float -> Float
 clickPowerCost power =
-    100 ^ power
+    power * 100 ^ power
 
 
 workerRateCost : Float -> Float
 workerRateCost rate =
-    1000 ^ rate
+    10 * rate ^ 2 * 1000 ^ rate
 
 
 clickBonusCost : Float -> Float
 clickBonusCost bonus =
-    10 * 1000 ^ (bonus + 1)
+    1000 * (bonus + 1) ^ 3 * 1000 ^ (bonus + 1)
 
 
 scientific : Float -> String
@@ -209,7 +209,7 @@ updateModel msg model =
         ClickWorker index ->
             let
                 cost =
-                    workerCost index
+                    workerCost (toFloat index)
 
                 bonus =
                     model.clickBonus * getBonus (index + 1) model.workers
