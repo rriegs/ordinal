@@ -184,11 +184,14 @@ updateModel msg model =
             let
                 cost =
                     workerCost index
+
+                clicks =
+                    min model.clickPower (toFloat (floor (model.cash / cost)))
             in
             if model.cash >= cost then
                 { model
-                    | cash = model.cash - cost
-                    , workers = incAtIndex model.clickPower index model.workers
+                    | cash = model.cash - cost * clicks
+                    , workers = incAtIndex clicks index model.workers
                 }
 
             else
