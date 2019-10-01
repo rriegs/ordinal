@@ -12,6 +12,7 @@ type alias Model =
     , workers : List Float
     , clickPower : Float
     , workerRate : Float
+    , clickBonus : Float
     }
 
 
@@ -21,6 +22,7 @@ type Msg
     | ClickWorker Int
     | ClickClickPower
     | ClickWorkerRate
+    | ClickClickBonus
 
 
 init : () -> ( Model, Cmd Msg )
@@ -29,6 +31,7 @@ init _ =
       , workers = [ 0 ]
       , clickPower = 1
       , workerRate = 1
+      , clickBonus = 0
       }
     , Cmd.none
     )
@@ -110,6 +113,17 @@ viewUpgrades model =
                 [ text ("💰 " ++ scientific (workerRateCost model.workerRate)) ]
             ]
         ]
+    , li []
+        [ button
+            [ class "w3-button w3-block w3-xlarge w3-row"
+            , onClick ClickClickBonus
+            ]
+            [ div [ class "w3-col s6 m12 l6" ]
+                [ text ("Click bonus: " ++ scientific model.clickBonus ++ "%") ]
+            , div [ class "w3-col s6 m12 l6" ]
+                [ text ("💰 " ++ scientific (clickBonusCost model.clickBonus)) ]
+            ]
+        ]
     ]
 
 
@@ -126,6 +140,11 @@ clickPowerCost power =
 workerRateCost : Float -> Float
 workerRateCost rate =
     1000 ^ rate
+
+
+clickBonusCost : Float -> Float
+clickBonusCost bonus =
+    10 * 1000 ^ (bonus + 1)
 
 
 scientific : Float -> String
@@ -178,20 +197,33 @@ updateModel msg model =
                     model
 
         ClickCash ->
-            { model | cash = model.cash + model.clickPower }
+            let
+                bonus =
+                    model.clickBonus * getBonus 0 model.workers
+
+                clicks =
+                    toFloat (floor (model.clickPower * (bonus + 1)))
+            in
+            { model | cash = model.cash + clicks }
 
         ClickWorker index ->
             let
                 cost =
                     workerCost index
 
+                bonus =
+                    model.clickBonus * getBonus (index + 1) model.workers
+
                 clicks =
-                    min model.clickPower (toFloat (floor (model.cash / cost)))
+                    toFloat (floor (model.clickPower * (bonus + 1)))
+
+                maxPurchase =
+                    min clicks (toFloat (floor (model.cash / cost)))
             in
             if model.cash >= cost then
                 { model
-                    | cash = model.cash - cost * clicks
-                    , workers = incAtIndex clicks index model.workers
+                    | cash = model.cash - cost * maxPurchase
+                    , workers = incAtIndex maxPurchase index model.workers
                 }
 
             else
@@ -224,6 +256,30 @@ updateModel msg model =
 
             else
                 model
+
+        ClickClickBonus ->
+            let
+                cost =
+                    clickBonusCost model.clickBonus
+            in
+            if model.cash >= cost then
+                { model
+                    | cash = model.cash - cost
+                    , clickBonus = model.clickBonus + 1
+                }
+
+            else
+                model
+
+
+getBonus : Int -> List Float -> Float
+getBonus index workers =
+    case List.drop index workers of
+        head :: tail ->
+            head / 100
+
+        _ ->
+            0
 
 
 updateWorkers : Float -> List Float -> List Float
