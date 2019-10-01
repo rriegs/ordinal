@@ -13,6 +13,7 @@ type alias Model =
     , clickPower : Float
     , workerRate : Float
     , clickBonus : Float
+    , selfGrowth : Float
     }
 
 
@@ -23,6 +24,7 @@ type Msg
     | ClickClickPower
     | ClickWorkerRate
     | ClickClickBonus
+    | ClickSelfGrowth
 
 
 init : () -> ( Model, Cmd Msg )
@@ -32,6 +34,7 @@ init _ =
       , clickPower = 1
       , workerRate = 1
       , clickBonus = 0
+      , selfGrowth = 0
       }
     , Cmd.none
     )
@@ -124,6 +127,17 @@ viewUpgrades model =
                 [ text ("💰 " ++ scientific (clickBonusCost model.clickBonus)) ]
             ]
         ]
+    , li []
+        [ button
+            [ class "w3-button w3-block w3-xlarge w3-row"
+            , onClick ClickSelfGrowth
+            ]
+            [ div [ class "w3-col s6 m12 l6" ]
+                [ text ("Self growth: " ++ scientific model.selfGrowth ++ "%") ]
+            , div [ class "w3-col s6 m12 l6" ]
+                [ text ("💰 " ++ scientific (selfGrowthCost model.selfGrowth)) ]
+            ]
+        ]
     ]
 
 
@@ -145,6 +159,11 @@ workerRateCost rate =
 clickBonusCost : Float -> Float
 clickBonusCost bonus =
     1000 * (bonus + 1) ^ 3 * 1000 ^ (bonus + 1)
+
+
+selfGrowthCost : Float -> Float
+selfGrowthCost growth =
+    100000 * (growth + 1) ^ 4 * 1000 ^ (growth + 1)
 
 
 scientific : Float -> String
@@ -190,7 +209,7 @@ updateModel msg model =
                 head :: tail ->
                     { model
                         | cash = model.cash + head * model.workerRate
-                        , workers = updateWorkers model.workerRate model.workers
+                        , workers = updateWorkers model model.workers
                     }
 
                 [] ->
@@ -271,6 +290,20 @@ updateModel msg model =
             else
                 model
 
+        ClickSelfGrowth ->
+            let
+                cost =
+                    selfGrowthCost model.selfGrowth
+            in
+            if model.cash >= cost then
+                { model
+                    | cash = model.cash - cost
+                    , selfGrowth = model.selfGrowth + 1
+                }
+
+            else
+                model
+
 
 getBonus : Int -> List Float -> Float
 getBonus index workers =
@@ -282,11 +315,19 @@ getBonus index workers =
             0
 
 
-updateWorkers : Float -> List Float -> List Float
-updateWorkers rate workers =
+updateWorkers : Model -> List Float -> List Float
+updateWorkers model workers =
+    let
+        growth =
+            1 + model.selfGrowth / 100
+    in
     case workers of
         head :: next :: tail ->
-            head + next * rate :: updateWorkers rate (next :: tail)
+            (head * growth + next * model.workerRate)
+                :: updateWorkers model (next :: tail)
+
+        head :: [] ->
+            [ head * growth ]
 
         _ ->
             workers
