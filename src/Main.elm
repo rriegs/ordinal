@@ -17,6 +17,26 @@ type alias Model =
     }
 
 
+uClickPower : Float -> Model -> Model
+uClickPower v m =
+    { m | clickPower = v }
+
+
+uWorkerRate : Float -> Model -> Model
+uWorkerRate v m =
+    { m | workerRate = v }
+
+
+uClickBonus : Float -> Model -> Model
+uClickBonus v m =
+    { m | clickBonus = v }
+
+
+uSelfGrowth : Float -> Model -> Model
+uSelfGrowth v m =
+    { m | selfGrowth = v }
+
+
 type Msg
     = Tick Time.Posix
     | ClickCash
@@ -223,60 +243,37 @@ updateModel msg model =
                 model
 
         ClickClickPower ->
-            let
-                cost =
-                    clickPowerCost model.clickPower
-            in
-            if model.cash >= cost then
-                { model
-                    | cash = model.cash - cost
-                    , clickPower = model.clickPower + 1
-                }
-
-            else
-                model
+            buyUpgrade clickPowerCost .clickPower uClickPower model
 
         ClickWorkerRate ->
-            let
-                cost =
-                    workerRateCost model.workerRate
-            in
-            if model.cash >= cost then
-                { model
-                    | cash = model.cash - cost
-                    , workerRate = model.workerRate + 1
-                }
-
-            else
-                model
+            buyUpgrade workerRateCost .workerRate uWorkerRate model
 
         ClickClickBonus ->
-            let
-                cost =
-                    clickBonusCost model.clickBonus
-            in
-            if model.cash >= cost then
-                { model
-                    | cash = model.cash - cost
-                    , clickBonus = model.clickBonus + 1
-                }
-
-            else
-                model
+            buyUpgrade clickBonusCost .clickBonus uClickBonus model
 
         ClickSelfGrowth ->
-            let
-                cost =
-                    selfGrowthCost model.selfGrowth
-            in
-            if model.cash >= cost then
-                { model
-                    | cash = model.cash - cost
-                    , selfGrowth = model.selfGrowth + 1
-                }
+            buyUpgrade selfGrowthCost .selfGrowth uSelfGrowth model
 
-            else
-                model
+
+buyUpgrade :
+    (Float -> Float)
+    -> (Model -> Float)
+    -> (Float -> Model -> Model)
+    -> Model
+    -> Model
+buyUpgrade upgradeCost getUpgrade setUpgrade model =
+    let
+        level =
+            getUpgrade model
+
+        cost =
+            upgradeCost level
+    in
+    if model.cash >= cost then
+        setUpgrade (level + 1) { model | cash = model.cash - cost }
+
+    else
+        model
 
 
 getBonus : Int -> List Float -> Float
