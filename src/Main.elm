@@ -61,84 +61,58 @@ view model =
                 [ text ("💰 " ++ scientific model.cash) ]
             ]
         , div [ class "w3-row" ]
-            [ ul
-                [ class "w3-ul w3-col m4 l4"
-                , style "height" "calc(100vh - 86px)"
-                , style "overflow-y" "scroll"
-                ]
-                (List.indexedMap viewWorker model.workers)
-            , ul
-                [ class "w3-ul w3-col m4 l4"
-                , style "height" "calc(100vh - 86px)"
-                , style "overflow-y" "scroll"
-                ]
-                (viewUpgrades model)
+            [ ulClickable (List.indexedMap viewWorker model.workers)
+            , ulClickable (viewUpgrades model)
             ]
         ]
 
 
 viewWorker : Int -> Float -> Html Msg
 viewWorker index count =
-    li []
-        [ button
-            [ class "w3-button w3-block w3-xlarge w3-row"
-            , onClick (ClickWorker index)
-            ]
-            [ div [ class "w3-col s6 m12 l6" ]
-                [ text ("⛏ " ++ scientific count) ]
-            , div [ class "w3-col s6 m12 l6" ]
-                [ text ("💰 " ++ scientific (workerCost (toFloat index))) ]
-            ]
-        ]
+    liClickable (ClickWorker index)
+        ("⛏ " ++ scientific count)
+        ("💰 " ++ scientific (workerCost (toFloat index)))
 
 
 viewUpgrades : Model -> List (Html Msg)
 viewUpgrades model =
-    [ li []
-        [ button
-            [ class "w3-button w3-block w3-xlarge w3-row"
-            , onClick ClickClickPower
-            ]
-            [ div [ class "w3-col s6 m12 l6" ]
-                [ text ("Click power: " ++ scientific model.clickPower) ]
-            , div [ class "w3-col s6 m12 l6" ]
-                [ text ("💰 " ++ scientific (clickPowerCost model.clickPower)) ]
-            ]
-        ]
-    , li []
-        [ button
-            [ class "w3-button w3-block w3-xlarge w3-row"
-            , onClick ClickWorkerRate
-            ]
-            [ div [ class "w3-col s6 m12 l6" ]
-                [ text ("Worker rate: " ++ scientific model.workerRate) ]
-            , div [ class "w3-col s6 m12 l6" ]
-                [ text ("💰 " ++ scientific (workerRateCost model.workerRate)) ]
-            ]
-        ]
-    , li []
-        [ button
-            [ class "w3-button w3-block w3-xlarge w3-row"
-            , onClick ClickClickBonus
-            ]
-            [ div [ class "w3-col s6 m12 l6" ]
-                [ text ("Click bonus: " ++ scientific model.clickBonus ++ "%") ]
-            , div [ class "w3-col s6 m12 l6" ]
-                [ text ("💰 " ++ scientific (clickBonusCost model.clickBonus)) ]
-            ]
-        ]
-    , li []
-        [ button
-            [ class "w3-button w3-block w3-xlarge w3-row"
-            , onClick ClickSelfGrowth
-            ]
-            [ div [ class "w3-col s6 m12 l6" ]
-                [ text ("Self growth: " ++ scientific model.selfGrowth ++ "%") ]
-            , div [ class "w3-col s6 m12 l6" ]
-                [ text ("💰 " ++ scientific (selfGrowthCost model.selfGrowth)) ]
-            ]
-        ]
+    [ liClickable ClickClickPower
+        ("Click power: " ++ scientific model.clickPower)
+        ("💰 " ++ scientific (clickPowerCost model.clickPower))
+    , liClickable ClickWorkerRate
+        ("Worker rate: " ++ scientific model.workerRate)
+        ("💰 " ++ scientific (workerRateCost model.workerRate))
+    , liClickable ClickClickBonus
+        ("Click bonus: " ++ scientific model.clickBonus ++ "%")
+        ("💰 " ++ scientific (clickBonusCost model.clickBonus))
+    , liClickable ClickSelfGrowth
+        ("Self growth: " ++ scientific model.selfGrowth ++ "%")
+        ("💰 " ++ scientific (selfGrowthCost model.selfGrowth))
     ]
+
+
+ulClickable : List (Html Msg) -> Html Msg
+ulClickable =
+    ul
+        [ class "w3-ul w3-col m4 l4"
+        , style "height" "calc(100vh - 86px)"
+        , style "overflow-y" "scroll"
+        ]
+
+
+liClickable : Msg -> String -> String -> Html Msg
+liClickable msg left right =
+    li []
+        [ button
+            [ class "w3-button w3-block w3-xlarge w3-row"
+            , onClick msg
+            ]
+            [ div [ class "w3-col s6 m12 l6" ]
+                [ text left ]
+            , div [ class "w3-col s6 m12 l6" ]
+                [ text right ]
+            ]
+        ]
 
 
 workerCost : Float -> Float
