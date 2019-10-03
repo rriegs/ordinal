@@ -137,7 +137,7 @@ liClickable msg left right =
 
 workerCost : Float -> Float
 workerCost index =
-    10 * 100 ^ index * index ^ index
+    10 ^ ((index + 1) * (index + 2) / 2)
 
 
 clickPowerCost : Float -> Float
@@ -147,7 +147,7 @@ clickPowerCost power =
 
 workerRateCost : Float -> Float
 workerRateCost rate =
-    10 * rate ^ 2 * 1000 ^ rate
+    100 * rate ^ 2 * 100 ^ rate
 
 
 clickBonusCost : Float -> Float
@@ -157,7 +157,7 @@ clickBonusCost bonus =
 
 selfGrowthCost : Float -> Float
 selfGrowthCost growth =
-    100000 * (growth + 1) ^ 4 * 1000 ^ (growth + 1)
+    10000 * (growth + 1) ^ 4 * 10000 ^ (growth + 1)
 
 
 scientific : Float -> String
