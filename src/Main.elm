@@ -98,16 +98,16 @@ viewUpgrades : Model -> List (Html Msg)
 viewUpgrades model =
     [ liClickable ClickClickPower
         ("Click power: " ++ scientific model.clickPower)
-        ("💰 " ++ scientific (clickPowerCost model.clickPower))
+        ("⛏ " ++ scientific (clickPowerCost model.clickPower))
     , liClickable ClickWorkerRate
         ("Worker rate: " ++ scientific model.workerRate)
-        ("💰 " ++ scientific (workerRateCost model.workerRate))
+        ("⛏ " ++ scientific (workerRateCost model.workerRate))
     , liClickable ClickClickBonus
         ("Click bonus: " ++ scientific model.clickBonus ++ "%")
-        ("💰 " ++ scientific (clickBonusCost model.clickBonus))
+        ("⛏ " ++ scientific (clickBonusCost model.clickBonus))
     , liClickable ClickSelfGrowth
         ("Self growth: " ++ scientific model.selfGrowth ++ "%")
-        ("💰 " ++ scientific (selfGrowthCost model.selfGrowth))
+        ("⛏ " ++ scientific (selfGrowthCost model.selfGrowth))
     ]
 
 
@@ -269,11 +269,16 @@ buyUpgrade upgradeCost getUpgrade setUpgrade model =
         cost =
             upgradeCost level
     in
-    if model.cash >= cost then
-        setUpgrade (level + 1) { model | cash = model.cash - cost }
+    case model.workers of
+        head :: tail ->
+            if head >= cost then
+                setUpgrade (level + 1) { model | workers = tail }
 
-    else
-        model
+            else
+                model
+
+        _ ->
+            model
 
 
 getBonus : Int -> List Float -> Float
